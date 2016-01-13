@@ -1,6 +1,8 @@
+require 'mw_dictionary_api'
+client = MWDictionaryAPI::Client.new(ENV['MW_API_KEY'])
 # module Donovan
   class Words
-    attr_accessor :lexicon
+    attr_accessor :lexicon, :client
 
     def initialize
       @lexicon = {verbs: {positive: [], neutral: [], negative: []},
@@ -30,7 +32,7 @@
     
     def get_grammar_tpye(word)
       if word == 'and' || word == 'but'
-        return 'coordinating conjunction'
+        'coordinating conjunction'
       end  
     end  
 
@@ -66,18 +68,26 @@
     end 
 
     def get_phrase_type(phrase)
-
+      phrase_array = phrase.split(' ')
+      type = words.get_grammar_type(phrase_array[0])
+      if type == 'coordinating conjunction'
+        @phrase_type = 'independent'
+      elsif type == 'adverb'
+        @phrase_type = 'subordinate'
+      end      
     end  
 
     def get_sentence_type(sentence)
       parts_of_sentence_without_conjunctions = split_sentence_by_coordinating_conjunctions(sentence)[0]
       parts_of_sentence_with_conjunctions = split_sentence_by_coordinating_conjunctions(sentence)[1]
-      if parts_of_sentence_without_conjunctions.length <= 2 
+      clasues = Hash.new  
+      if parts_of_sentence_without_conjunctions.length >= 2 
         parts_of_sentence_without_conjunctions[1..-1].each do |phrase|
-          if phrase.split(" ").length <= 1
+          clauses[phrase] = get_phrase_type(phrase)
+          if phrase.split(" ").length <= 2
             @sentence_type = "simple"
-          else
-            @sentence_type = "compound"
+          # elsif 
+          #   @sentence_type = "compound"
           end  
         end  
       end  
@@ -134,8 +144,8 @@
   end  
 # end
 
-
-
+results = client.search('one')
+puts results
 
 
 
@@ -146,13 +156,13 @@ hi = "hello"
 s = Sentence.new
 
 
-arr = s.split_sentence_by_coordinating_conjunctions(long_demo)
+# arr = s.split_sentence_by_coordinating_conjunctions(long_demo)
 
-puts s.get_sentence_type(long_demo)
+# puts s.get_sentence_type(long_demo)
 
-arr.each do |phrases|
-  p phrases
-end  
+# arr.each do |phrases|
+#   p phrases
+# end  
 
 
 
