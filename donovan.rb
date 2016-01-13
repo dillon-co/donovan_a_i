@@ -70,25 +70,18 @@
     end  
 
     def get_sentence_type(sentence)
-      sentence_arr = sentence.split(' ')
-      coordinating_conjunctions = figure_out_coordinating_cconjunctions(sentence)
-      simple_sentence = true
-      sentence_type = "simple"
-      if !simple_sentence
-        parts_of_sentece_without_conjunctions = split_sentence_by_coordinating_conjunctions(sentence, coordinating_conjunctions)[0]
-        parts_of_sentece_with_conjunctions = split_sentence_by_coordinating_conjunctions(sentence, coordinating_conjunctions)[1]
-        if parts_of_sentence.length == 2 
-          parts_of_sentence.each_with_index do |phrase, phrase_index|
-            if phrase.split(" ").length > 1
-              sentence_type = "simple"
-            else
-              sentence_type = "compound"
-            
-            end  
+      parts_of_sentence_without_conjunctions = split_sentence_by_coordinating_conjunctions(sentence)[0]
+      parts_of_sentence_with_conjunctions = split_sentence_by_coordinating_conjunctions(sentence)[1]
+      if parts_of_sentence_without_conjunctions.length <= 2 
+        parts_of_sentence_without_conjunctions[1..-1].each do |phrase|
+          if phrase.split(" ").length <= 1
+            @sentence_type = "simple"
+          else
+            @sentence_type = "compound"
           end  
         end  
-      end
-      return sentence_type    
+      end  
+      @sentence_type    
     end  
 
     def structure(sentence)
@@ -131,7 +124,6 @@
     end
   
     def get_meaning_of_sentence
-      count = 0
       words = []
       sentence.split(' ').each do |word|
         type, emotion = Words.get_type_and_emotion
@@ -149,8 +141,14 @@
 
 
 demo = "I like cheese and crackers but not cheesecake"
+long_demo = "I like cheesecake and gerry likes pie"
+hi = "hello"
+s = Sentence.new
 
-arr = Sentence.new.split_sentence_by_coordinating_conjunctions(demo)
+
+arr = s.split_sentence_by_coordinating_conjunctions(long_demo)
+
+puts s.get_sentence_type(long_demo)
 
 arr.each do |phrases|
   p phrases
