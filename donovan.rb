@@ -33,9 +33,10 @@ client = MWDictionaryAPI::Client.new(ENV['MW_API_KEY'])
     def get_grammar_tpye(word)
       if word == 'and' || word == 'but'
         'coordinating conjunction'
+      elsif word == 'after' || word == 'before'
+        'adverb'
       end  
     end  
-
   end
 
   class Sentence
@@ -48,7 +49,7 @@ client = MWDictionaryAPI::Client.new(ENV['MW_API_KEY'])
       coordinating_conjunction_arr = []
       sentence.split(' ').each do |word|
         type = words.get_grammar_tpye(word)
-        if type == 'coordinating conjunction'
+        if type == 'coordinating conjunction' || type == 'adverb'
           coordinating_conjunction_arr << word
         end  
       end 
@@ -71,9 +72,9 @@ client = MWDictionaryAPI::Client.new(ENV['MW_API_KEY'])
       phrase_array = phrase.split(' ')
       type = words.get_grammar_type(phrase_array[0])
       if type == 'coordinating conjunction'
-        @phrase_type = 'independent'
+        'independent'
       elsif type == 'adverb'
-        @phrase_type = 'subordinate'
+        'subordinate'
       end      
     end  
 
@@ -81,15 +82,17 @@ client = MWDictionaryAPI::Client.new(ENV['MW_API_KEY'])
       parts_of_sentence_without_conjunctions = split_sentence_by_coordinating_conjunctions(sentence)[0]
       parts_of_sentence_with_conjunctions = split_sentence_by_coordinating_conjunctions(sentence)[1]
       clasues = Hash.new  
-      if parts_of_sentence_without_conjunctions.length >= 2 
-        parts_of_sentence_without_conjunctions[1..-1].each do |phrase|
-          clauses[phrase] = get_phrase_type(phrase)
-          if phrase.split(" ").length <= 2
-            @sentence_type = "simple"
-          # elsif 
-          #   @sentence_type = "compound"
-          end  
-        end  
+      parts_of_sentence_with_conjunctions[1..-1].each do |phrase|
+      if parts_of_sentence_without_conjunctions.length < 2
+        @sentence_type = "simple"
+        break
+      else  
+          if get_phrase_type(phrase) == 'independent' 
+            @sentence_type = "coompound"
+          elsif get_phrase_type(phrase) == 'subordinate'
+            @sentence_type = "complex"
+          end
+        end    
       end  
       @sentence_type    
     end  
@@ -144,25 +147,25 @@ client = MWDictionaryAPI::Client.new(ENV['MW_API_KEY'])
   end  
 # end
 
-results = client.search('one')
-puts results
+# results = client.search('one')
+# puts results
 
 
 
 
 demo = "I like cheese and crackers but not cheesecake"
-long_demo = "I like cheesecake and gerry likes pie"
+long_demo = "I like cheesecake after gerry eats pie"
 hi = "hello"
 s = Sentence.new
 
 
-# arr = s.split_sentence_by_coordinating_conjunctions(long_demo)
+arr = s.split_sentence_by_coordinating_conjunctions(long_demo)
 
-# puts s.get_sentence_type(long_demo)
+puts s.get_sentence_type(long_demo)
 
-# arr.each do |phrases|
-#   p phrases
-# end  
+arr.each do |phrases|
+  p phrases
+end  
 
 
 
